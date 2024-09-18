@@ -27,3 +27,24 @@ model Cadastro {
   senha          String
   membro         Boolean
 }
+
+model Evento {
+  id             String  @unique
+  nome           String
+  descricao      String 
+  localizacao    String
+  valor          Decimal @default(0)
+  data           String
+  arquivo        Bytes
+}
+
+model Ingresso {
+  id            String @unique
+  nomeEvento    String
+  pago          Boolean
+  dataExpiracao String
+  valor         Decimal
+  cpf           String
+}
+
+

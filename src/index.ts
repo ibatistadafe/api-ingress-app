@@ -5,9 +5,17 @@ import { Cadastro } from './interfaces/cadastro.interface';
 import { prisma } from "../lib/prisma";
 import { v4 as uuidv4 } from 'uuid';
 import eventosRouter from './routes/eventos.routes';
+import ingressosRouter from './routes/ingressos.routes';
+import { Evento } from '@prisma/client';
+import { buscarIngressoPorCpf, Listaringressos } from './controller/ingressos.controller';
+import { Ingresso } from './interfaces/ingresso.interface';
+import bodyParser from 'body-parser';
 
 const app = express();
 const port = 3000;
+
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(express.json());
 
@@ -56,6 +64,73 @@ app.get('/cadastros', async (req: Request, res: Response) => {
     console.error('Erro ao listar cadastros:', error);
   } finally {
     await prisma.$disconnect();
+  }
+});
+
+app.get('/eventos', async (req: Request, res: Response) => {
+  try {
+    const eventos = await prisma.evento.findMany();
+    res.json(eventos);
+  } catch(error) {
+    console.error('Erro ao listar eventos:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+app.post('/eventos', async (req: Request, res: Response) => {
+  const evento: Evento = req.body;
+  evento.id = uuidv4();
+  try {
+    await prisma.evento.create({
+      data: evento,
+    });
+    console.log('Evento criado com sucesso.');
+    res.status(201).json({ message: 'Evento realizado com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao criar evento:', error);
+    res.status(500).json({ message: 'Erro ao criar evento.' });
+  } finally {
+    await prisma.$disconnect(); // Desconecta o Prisma Client
+  }
+})
+
+app.get('/ingressos/:cpf', async (req: Request, res: Response) => {
+  const cpf = req.params.cpf;
+  try {
+    const ingressos = await buscarIngressoPorCpf(cpf);
+    res.json(ingressos);
+  } catch (error) {
+    console.error("Erro ao buscar ingressos", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+app.get('/ingressos', async (req: Request, res: Response) => {
+  try {
+    const ingressos = await Listaringressos(req, res);
+    res.json(ingressos);
+  } catch (erro) {
+    console.error('Erro ao buscar ingressos', erro);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+app.post('/ingressos', async (req: Request, res: Response) => {
+  const ingresso: Ingresso = req.body;
+  ingresso.id = uuidv4();
+  try {
+    await prisma.ingresso.create({
+      data: ingresso,
+    });
+    res.status(201).json(ingresso);
+  } catch (error) {
+    console.error('Erro ao criar ingresso:', error);
+    res.status(500).json({ message: 'Erro ao criar ingresso.' });
+  } finally {
+    await prisma.$disconnect(); // Desconecta o Prisma Client
   }
 });
 

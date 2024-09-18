@@ -3,6 +3,8 @@ import { eventos } from '../controller/eventos.controller';
 
 const eventosRouter: Router = express.Router();
 
-eventosRouter.get('/list-eventos', eventos);
+eventosRouter.get('/eventos', eventos);
 
-export default eventosRouter;
+eventosRouter.post('/eventos', eventos);
+
+export default eventosRouter;   
