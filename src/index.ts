@@ -10,6 +10,7 @@ import { Evento } from '@prisma/client';
 import { buscarIngressoPorCpf, Listaringressos } from './controller/ingressos.controller';
 import { Ingresso } from './interfaces/ingresso.interface';
 import bodyParser from 'body-parser';
+import { buscarEventoPorId } from './controller/eventos.controller';
 
 const app = express();
 const port = 3000;
@@ -77,6 +78,18 @@ app.get('/eventos', async (req: Request, res: Response) => {
     await prisma.$disconnect();
   }
 });
+
+app.get('/eventos/:id', async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const evento = await buscarEventoPorId(id);
+    res.json(evento);
+  } catch (error) {
+    console.log("Erro ao buscar evento", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+})
 
 app.post('/eventos', async (req: Request, res: Response) => {
   const evento: Evento = req.body;
