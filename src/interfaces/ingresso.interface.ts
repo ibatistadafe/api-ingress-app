@@ -7,7 +7,7 @@ export interface Ingresso {
     email: string;
     telefone: string;
     tipo: string;
-    valor: number;
+    valor?: number;
     ingressosId: string;
 
 }

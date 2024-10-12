@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import eventosRouter from './routes/eventos.routes';
 import ingressosRouter from './routes/ingressos.routes';
 import { Evento } from '@prisma/client';
-import { buscarIngressoPorCpf, Listaringressos } from './controller/ingressos.controller';
+import { buscarIngressoPorCpf, buscarIngressosPorCodigo, Listaringressos } from './controller/ingressos.controller';
 import { Ingresso, Ingressos } from './interfaces/ingresso.interface';
 import bodyParser from 'body-parser';
 import { buscarEventoPorId } from './controller/eventos.controller';
@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.json());
 
 app.use(cors({
-  origin: ['http://192.168.15.4:4200'],
+  origin: ['http://localhost:4200'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -112,6 +112,18 @@ app.get('/ingressos/:cpf', async (req: Request, res: Response) => {
   const cpf = req.params.cpf;
   try {
     const ingressos = await buscarIngressoPorCpf(cpf);
+    res.json(ingressos);
+  } catch (error) {
+    console.error("Erro ao buscar ingressos", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+app.get('/ingressos/codigo/:codigo', async (req: Request, res: Response) => {
+  const codigo = Number(req.params.codigo);
+  try {
+    const ingressos = await buscarIngressosPorCodigo(codigo);
     res.json(ingressos);
   } catch (error) {
     console.error("Erro ao buscar ingressos", error);
