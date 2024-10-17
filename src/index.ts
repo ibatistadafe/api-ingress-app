@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import eventosRouter from './routes/eventos.routes';
 import ingressosRouter from './routes/ingressos.routes';
 import { Evento } from '@prisma/client';
-import { buscarIngressoPorCpf, Listaringressos } from './controller/ingressos.controller';
+import { atualizarStatusPagamento, buscarIngressoPorCpf, Listaringressos } from './controller/ingressos.controller';
 import { Ingresso } from './interfaces/ingresso.interface';
 import bodyParser from 'body-parser';
 import { buscarEventoPorId } from './controller/eventos.controller';
@@ -130,6 +130,23 @@ app.get('/ingressos', async (req: Request, res: Response) => {
     await prisma.$disconnect();
   }
 });
+
+
+// Definir a rota para atualizar o status de pagamento
+app.put('/ingressos/:id/pagamento', async (req, res) => {
+  const ingresso: Ingresso = req.body;
+  const id =  ingresso.id = uuidv4();
+  const { status } = req.body;
+
+  try {
+    const ingressoAtualizado = await atualizarStatusPagamento(status, id);
+    res.status(200).json(ingressoAtualizado);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao atualizar status do ingresso.' });
+  }
+});
+
+
 
 app.post('/ingressos', async (req: Request, res: Response) => {
   const ingresso: Ingresso = req.body;
