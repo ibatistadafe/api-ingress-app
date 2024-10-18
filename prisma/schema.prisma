@@ -29,22 +29,31 @@ model Cadastro {
 }
 
 model Evento {
-  id             String  @unique
-  nome           String
-  descricao      String 
-  localizacao    String
-  valor          Decimal @default(0)
-  data           String
-  arquivo        Bytes
+  id          String  @unique
+  nome        String
+  descricao   String
+  localizacao String
+  valor       Decimal @default(0)
+  data        String
+  arquivo     Bytes
 }
 
 model Ingresso {
-  id            String @unique
-  nomeEvento    String
-  pago          Boolean
-  dataExpiracao String
-  valor         Decimal
-  cpf           String
+  id          String    @id @unique
+  nomePessoa  String
+  cpf         String
+  email       String
+  telefone    String
+  tipo        String
+  ingressosId String
+  ingressos   Ingressos @relation(fields: [ingressosId], references: [id])
 }
 
-
+model Ingressos {
+  id      String     @id @unique
+  codigo  Int
+  tickets Ingresso[]
+  total   Decimal
+  pago    Boolean
+  nomeEvento  String
+}

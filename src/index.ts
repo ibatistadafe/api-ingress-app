@@ -7,8 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 import eventosRouter from './routes/eventos.routes';
 import ingressosRouter from './routes/ingressos.routes';
 import { Evento } from '@prisma/client';
-import { buscarIngressoPorCpf, Listaringressos } from './controller/ingressos.controller';
-import { Ingresso } from './interfaces/ingresso.interface';
+import { buscarIngressoPorCpf, buscarIngressosPorCodigo, Listaringressos } from './controller/ingressos.controller';
+import { Ingresso, Ingressos } from './interfaces/ingresso.interface';
 import bodyParser from 'body-parser';
 import { buscarEventoPorId } from './controller/eventos.controller';
 
@@ -120,6 +120,18 @@ app.get('/ingressos/:cpf', async (req: Request, res: Response) => {
   }
 });
 
+app.get('/ingressos/codigo/:codigo', async (req: Request, res: Response) => {
+  const codigo = Number(req.params.codigo);
+  try {
+    const ingressos = await buscarIngressosPorCodigo(codigo);
+    res.json(ingressos);
+  } catch (error) {
+    console.error("Erro ao buscar ingressos", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
 app.get('/ingressos', async (req: Request, res: Response) => {
   try {
     const ingressos = await Listaringressos(req, res);
@@ -132,20 +144,39 @@ app.get('/ingressos', async (req: Request, res: Response) => {
 });
 
 app.post('/ingressos', async (req: Request, res: Response) => {
-  const ingresso: Ingresso = req.body;
-  ingresso.id = uuidv4();
+  const { codigo, total, pago, nomeEvento, tickets } = req.body;
+
   try {
-    await prisma.ingresso.create({
-      data: ingresso,
+    const ingressos = await prisma.ingressos.create({
+      data: {
+        id: uuidv4(),
+        codigo,
+        total: total, // Certifique-se de que o total está no formato correto
+        pago,
+        nomeEvento,
+        tickets: {
+          create: tickets.map((ticket: Ingresso) => ({
+            id: uuidv4(), // Gera um novo ID para cada ingresso
+            nomePessoa: ticket.nome,
+            cpf: ticket.cpf,
+            email: ticket.email,
+            telefone: ticket.telefone,
+            tipo: ticket.tipo,
+          }))
+        }
+      }
     });
-    res.status(201).json(ingresso);
+
+    res.status(201).json(ingressos);
   } catch (error) {
-    console.error('Erro ao criar ingresso:', error);
-    res.status(500).json({ message: 'Erro ao criar ingresso.' });
+    console.error('Erro ao criar ingressos:', error);
+    res.status(500).json({ message: 'Erro ao criar ingressos.' });
   } finally {
     await prisma.$disconnect(); // Desconecta o Prisma Client
   }
 });
+
+
 
 // Endpoint para criar um recurso
 app.post('/resource', (req: Request, res: Response) => {
