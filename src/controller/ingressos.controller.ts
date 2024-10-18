@@ -39,13 +39,11 @@ export async function buscarIngressoPorCpf(cpf: string) {
 
 export async function atualizarStatusPagamento(status: boolean, id: string){
   let ingressoStatus; 
-
   //esta busacando o pedido e o status do pedido 
   try {
     ingressoStatus =  await prisma.ingresso.update({
       where: {
         id: id,
-       
       }, 
       data: {
         pago: status,
@@ -54,7 +52,6 @@ export async function atualizarStatusPagamento(status: boolean, id: string){
 
     console.log('Status do ingresso atualizado:', ingressoStatus);
     return ingressoStatus;
-   
   } catch (error) {
     console.error('Erro ao atualizar status do ingresso:', error);
     throw error;
