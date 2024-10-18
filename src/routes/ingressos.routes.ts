@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { atualizarStatusPagamento, buscarIngressoPorCpf, Listaringressos } from '../controller/ingressos.controller';
+import {  atualizarStatusPagamento, buscarIngressoPorCpf, Listaringressos } from '../controller/ingressos.controller';
 
 const ingressosRouter: Router = express.Router();
 
