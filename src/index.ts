@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import eventosRouter from './routes/eventos.routes';
 import ingressosRouter from './routes/ingressos.routes';
 import { Evento } from '@prisma/client';
-import { buscarIngressoPorCpf, buscarIngressosPorCodigo, Listaringressos } from './controller/ingressos.controller';
+import { atualizarStatusPagamento, buscarIngressoPorCpf, buscarIngressosPorCodigo, Listaringressos } from './controller/ingressos.controller';
 import { Ingresso, Ingressos } from './interfaces/ingresso.interface';
 import bodyParser from 'body-parser';
 import { buscarEventoPorId } from './controller/eventos.controller';
@@ -173,6 +173,25 @@ app.post('/ingressos', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Erro ao criar ingressos.' });
   } finally {
     await prisma.$disconnect(); // Desconecta o Prisma Client
+  }
+});
+
+
+app.put('/ingressos/:id/pagamento', async (req: Request, res: Response) => {
+  const codigo = Number(req.params.id); // 'id' está sendo passado na URL, não 'codigo'
+  const status = req.body.status; // O status de pagamento está vindo no corpo da requisição
+
+  try {
+    const ingressos = await atualizarStatusPagamento(status, codigo);
+    res.json(ingressos);
+  } catch (error) {
+    console.error("Erro ao atualizar o status de pagamento", error);
+
+
+    res.status(500).json({ error: "Erro ao atualizar o status de pagamento" });
+  } finally {
+
+    await prisma.$disconnect();
   }
 });
 
