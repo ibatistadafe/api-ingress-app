@@ -50,10 +50,10 @@ model Ingresso {
 }
 
 model Ingressos {
-  id      String     @id @unique
-  codigo  Int
-  tickets Ingresso[]
-  total   Decimal
-  pago    Boolean
-  nomeEvento  String
+  id         String     @id @unique
+  codigo     Int        @unique
+  tickets    Ingresso[]
+  total      Decimal
+  pago       Boolean
+  nomeEvento String
 }

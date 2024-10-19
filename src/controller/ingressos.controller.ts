@@ -82,56 +82,30 @@ export async function buscarIngressoPorCpf(cpf: string) {
   }
 }
 
+
+
 export async function atualizarStatusPagamento(req: Request, res: Response): Promise<void> {
-  //esse cara é o que vou alterar do ingresso
   const status: boolean = req.body.status;
-  const codigo: number = req.body.codigo;
+  const codigo: number = parseInt(req.params.codigo);
 
   try {
-    const ingressos = await prisma.ingressos.findMany({
-      where: {
-        codigo: codigo,
-      },
-      include: {
-        tickets: true,
-      },
-    });
+      const ingressosAtualizados = await prisma.ingressos.updateMany({
+          where: { codigo: codigo },
+          data: { pago: status }
+      });
 
-    if (ingressos.length > 0) {
-      console.log("Ingressos encontrados:", ingressos);
-
-      // Transformar os dados para incluir as propriedades corretas nos tickets
-      const ingressosTransformados = ingressos.map(ingresso => ({
-        id: ingresso.id,
-        codigo: ingresso.codigo,
-        total: ingresso.total.toNumber(),
-        pago: status,
-        nomeEvento: ingresso.nomeEvento,
-        tickets: ingresso.tickets.map(ticket => ({
-          id: ticket.id,
-          nomeEvento: ingresso.nomeEvento,
-          nome: ticket.nomePessoa, 
-          pago: ingresso.pago, 
-          cpf: ticket.cpf,
-          email: ticket.email,
-          telefone: ticket.telefone,
-          tipo: ticket.tipo,
-          ingressosId: ticket.ingressosId,
-        })),
-      }));
-
-      res.status(200).json(ingressosTransformados);
-    } else {
-      console.log("Nenhum ingresso encontrado para o código fornecido");
-
-      res.status(200).json(["isso é tudo pessoal"]);
-    }
+      if (ingressosAtualizados.count > 0) {
+          const ingressos = await prisma.ingressos.findMany({
+              where: { codigo: codigo },
+              include: { tickets: true }
+          });
+          res.status(200).json(ingressos);
+      } else {
+          console.log("Nenhum ingresso encontrado para o código fornecido");
+          res.status(404).json({ message: "Ingresso não encontrado" });
+      }
   } catch (error) {
-    console.log("Erro ao buscar ingressos:", error);
-    throw error; // Considere relançar ou tratar o erro conforme necessário
+      console.error("Erro ao atualizar ingresso:", error);
+      res.status(500).json({ message: "Erro ao atualizar ingresso" });
   }
-
-
-  //retorna o ingresso alterado
-
 }
