@@ -6,6 +6,7 @@ const ingressosRouter: Router = express.Router();
 ingressosRouter.get('/ingressos', Listaringressos);
 ingressosRouter.get('/ingressos/:cpf', buscarIngressoPorCpf);
 ingressosRouter.get('/ingressos/codigo/:codigo', buscarIngressosPorCodigo);
-// ingressosRouter.put('/ingressos/codigo/:codigo', atualizarStatusPagamento);
+
+ingressosRouter.put('/ingressos/:codigo', atualizarStatusPagamento);
 
 export default ingressosRouter;   

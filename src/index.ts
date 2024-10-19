@@ -177,31 +177,9 @@ app.post('/ingressos', async (req: Request, res: Response) => {
 });
 
 
-app.put('/ingressos/:id/pagamento', async (req: Request, res: Response) => {
-  const codigo = Number(req.params.id); // 'id' está sendo passado na URL, não 'codigo'
-  const status = req.body.status; // O status de pagamento está vindo no corpo da requisição
 
-  try {
-    const ingressos = await atualizarStatusPagamento(status, codigo);
-    res.json(ingressos);
-  } catch (error) {
-    console.error("Erro ao atualizar o status de pagamento", error);
-
-
-    res.status(500).json({ error: "Erro ao atualizar o status de pagamento" });
-  } finally {
-
-    await prisma.$disconnect();
-  }
-});
-
-
-
-// Endpoint para criar um recurso
-app.post('/resource', (req: Request, res: Response) => {
-  const data = req.body;
-  res.status(201).send(data);
-});
+//aqui é o m
+app.use('/reserva', ingressosRouter); // Monte o roteador no caminho /api
 
 
 
